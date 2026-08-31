@@ -26,11 +26,27 @@ def set_custom_prompt(custom_prompt_template):
     return prompt
 
 
+def get_groq_api_key():
+    key = os.environ.get("GROQ_API_KEY")
+    if key:
+        return key
+    try:
+        return st.secrets["GROQ_API_KEY"]
+    except Exception:
+        return None
+
+
 def load_llm():
+    groq_api_key = get_groq_api_key()
+    if not groq_api_key:
+        raise RuntimeError(
+            "GROQ_API_KEY is not set. Add it to .env locally, "
+            "or to the app's Secrets on Streamlit Community Cloud."
+        )
     llm = ChatGroq(
         model_name="openai/gpt-oss-120b",
         temperature=0.3,
-        groq_api_key=os.environ["GROQ_API_KEY"],
+        groq_api_key=groq_api_key,
     )
     return llm
 
