@@ -31,9 +31,14 @@ def get_groq_api_key():
     if key:
         return key
     try:
-        return st.secrets["GROQ_API_KEY"]
-    except Exception:
-        return None
+        if "GROQ_API_KEY" in st.secrets:
+            return st.secrets["GROQ_API_KEY"]
+        available = list(st.secrets.keys())
+        raise RuntimeError(f"st.secrets has no GROQ_API_KEY. Keys found: {available}")
+    except RuntimeError:
+        raise
+    except Exception as e:
+        raise RuntimeError(f"st.secrets could not be read: {type(e).__name__}: {e}")
 
 
 def load_llm():
